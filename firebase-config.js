@@ -1,9 +1,12 @@
-// 1) Create a Firebase project and register a Web app.
-// 2) Copy your web app config from Firebase Console into the object below.
-// These values are public app identifiers, NOT admin secrets. Never put a service-account key here.
-export const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  appId: "PASTE_YOUR_APP_ID"
+const firebaseConfig = {
+  apiKey: "AIzaSyDxs1ajvxsqVjujfCwDdmZ...", // Poori key Firebase box se copy karein
+  authDomain: "apna-food-9c653.firebaseapp.com",
+  projectId: "apna-food-9c653",
+  storageBucket: "apna-food-9c653.firebasestorage.app",
+  messagingSenderId: "985518405828",
+  appId: "1:985518405828:web:5f9fb0b22382d141c29191",
+  measurementId: "G-RVGP2D2CYL"
 };
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
