@@ -24,16 +24,19 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Accept Android Licenses
+        run: yes | sdkmanager --licenses || true
 
       - name: Initialize Capacitor and Build APK
         run: |
+          mkdir -p www
+          cp -r *.html *.js *.css *.svg *.json www/ 2>/dev/null || true
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "Apna Food" "com.apnafood.app" --web-dir .
+          npx cap init "Apna Food" "com.apnafood.app" --web-dir www
           npx cap add android
           cd android
+          chmod +x gradlew
           ./gradlew assembleDebug
 
       - name: Upload APK
