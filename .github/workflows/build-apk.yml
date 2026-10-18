@@ -1,4 +1,4 @@
-name: Build Android APK from Web
+name: Build Android APK
 
 on:
   workflow_dispatch:
@@ -16,31 +16,26 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
 
-      - name: Setup Java 21
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
 
-      - name: Accept Android Licenses
-        run: yes | sdkmanager --licenses || true
-
-      - name: Initialize Capacitor and Build APK
+      - name: Build APK with Cordova
         run: |
-          mkdir -p www
-          cp -r *.html *.js *.css *.svg *.json www/ 2>/dev/null || true
-          npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "Apna Food" "com.apnafood.app" --web-dir www
-          npx cap add android
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          npm install -g cordova
+          cordova create myapp com.apnafood.app "Apna Food"
+          cd myapp
+          rm -rf www/*
+          cp -r ../*.html ../*.js ../*.css ../*.svg ../*.json www/ 2>/dev/null || true
+          cordova platform add android
+          cordova build android --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: food-app-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: apna-food-apk
+          path: myapp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
