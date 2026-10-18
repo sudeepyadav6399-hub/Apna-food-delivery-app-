@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Replace this placeholder with the UID of the trusted admin account
+    // from Firebase Console > Authentication > Users.
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == "REPLACE_WITH_ADMIN_UID";
+    }
+
+    match /orders/{orderId} {
+      // Admin can read all orders; customers cannot read other customers' orders.
+      allow read: if isAdmin();
+
+      // A signed-in customer (anonymous auth is enabled in this starter) can create
+      // only a limited, schema-checked order owned by their own UID.
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+          'ownerUid', 'customerName', 'phone', 'address', 'notes',
+          'items', 'paymentMethod', 'paymentStatus', 'status', 'createdAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'ownerUid', 'customerName', 'phone', 'address', 'notes',
+          'items', 'paymentMethod', 'paymentStatus', 'status', 'createdAt'
+        ])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.customerName is string
+        && request.resource.data.customerName.size() >= 1
+        && request.resource.data.customerName.size() <= 70
+        && request.resource.data.phone is string
+        && request.resource.data.phone.matches('^[0-9]{10}$')
+        && request.resource.data.address is string
+        && request.resource.data.address.size() >= 5
+        && request.resource.data.address.size() <= 300
+        && request.resource.data.notes is string
+        && request.resource.data.notes.size() <= 200
+        && request.resource.data.items is list
+        && request.resource.data.items.size() >= 1
+        && request.resource.data.items.size() <= 15
+        && request.resource.data.paymentMethod in ['upi', 'cod']
+        && request.resource.data.paymentStatus == 'unverified'
+        && request.resource.data.status == 'received'
+        && request.resource.data.createdAt == request.time;
+
+      // Only admin may update status. Client cannot mark payments as paid.
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status'])
+        && request.resource.data.status in [
+          'received', 'accepted', 'preparing', 'ready',
+          'out_for_delivery', 'delivered', 'cancelled'
+        ];
+
+      allow delete: if isAdmin();
+    }
+  }
+}
