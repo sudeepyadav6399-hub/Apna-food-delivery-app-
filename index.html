@@ -1,9 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f97316">
@@ -11,13 +11,20 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
-  <title>Apna Food — Local food, delivered</title>
+  <title>Apna Food - Local Food, Delivered</title>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#" aria-label="Apna Food home"><span class="brand-icon">🍲</span><span>Apna<span class="accent">Food</span><small>LOCAL FOOD, MADE EASY</small></span></a>
-    <button id="cartOpen" class="cart-button" aria-label="Open cart">🛒 Cart <b id="cartCount">0</b></button>
+    <a class="brand" href="#" aria-label="Apna Food Home">
+      <span class="brand-icon">🍲</span>
+      <span>Apna<span class="accent">Food</span></span>
+    </a>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <a href="admin.html" style="color: #fff; background: #d32f2f; text-decoration: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;">Owner Panel</a>
+      <button id="cartOpen" class="cart-button" aria-label="Open cart">🛒 Cart <b id="cartCount">0</b></button>
+    </div>
   </header>
+
   <main>
     <section class="hero">
       <div class="hero-copy">
@@ -26,27 +33,62 @@
         <p>Discover local favourites and order your next meal in a few taps.</p>
         <a class="primary-link" href="#restaurants">Explore restaurants <span>→</span></a>
       </div>
-      <div class="hero-art" aria-hidden="true"><div class="art-circle">🍛</div><span class="float-chip chip-one">Fresh & local</span><span class="float-chip chip-two">Made with ❤️</span></div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-circle">🍲<span class="float-chip chip-one">Fresh</span></div>
+      </div>
     </section>
-    <section class="trust-row"><div>🥘 <span>Local restaurants</span></div><div>🛵 <span>Simple ordering</span></div><div>💬 <span>Direct support</span></div></section>
+
+    <section class="trust-row">
+      <div>🌱 <span>Local restaurants</span></div>
+      <div>⚡ <span>Fast preparation</span></div>
+      <div>✨ <span>Simple ordering</span></div>
+    </section>
+
     <section id="restaurants" class="section">
-      <div class="section-heading"><div><p class="eyebrow">MADE IN YOUR TOWN</p><h2>Popular near you</h2></div><span class="demo-label">DEMO MENU</span></div>
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">MADE IN YOUR TOWN</p>
+          <h2>Popular near you</h2>
+        </div>
+        <span class="pill">Live Menu</span>
+      </div>
       <div class="filters" id="filters">
-        <button class="filter active" data-category="All">All food</button><button class="filter" data-category="Meals">Meals</button><button class="filter" data-category="Snacks">Snacks</button><button class="filter" data-category="Drinks">Drinks</button>
+        <button class="chip active" data-category="All">All food</button>
+        <button class="chip" data-category="Thali">Thali</button>
+        <button class="chip" data-category="Biryani">Biryani</button>
+        <button class="chip" data-category="South Indian">South Indian</button>
+        <button class="chip" data-category="Snacks">Snacks</button>
+        <button class="chip" data-category="Beverages">Beverages</button>
       </div>
       <div id="foodGrid" class="food-grid"></div>
     </section>
-    <section class="how-section"><p class="eyebrow">HOW IT WORKS</p><h2>Your next meal is simple.</h2><div class="steps"><article><span>1</span><h3>Choose food</h3><p>Explore dishes from local favourites.</p></article><article><span>2</span><h3>Add to cart</h3><p>Choose what you want and review your order.</p></article><article><span>3</span><h3>Place your order</h3><p>Send your details and confirm with the restaurant.</p></article></div></section>
-    <footer><div class="brand footer-brand"><span class="brand-icon">🍲</span><span>Apna<span class="accent">Food</span><small>LOCAL FOOD, MADE EASY</small></span></div><p>Prototype made to help local restaurants get online.</p><small>Demo only · No real order or payment is sent.</small></footer>
+
+    <section class="how-section">
+      <p class="eyebrow">HOW IT WORKS</p>
+      <h2>Your next meal is simple.</h2>
+    </section>
+
+    <footer>
+      <div class="brand footer-brand"><span class="brand-icon">🍲</span><span>Apna <span class="accent">Food</span></span></div>
+    </footer>
   </main>
-  <div id="toast" class="toast" role="status"></div>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+
   <div id="cartOverlay" class="overlay hidden">
     <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
-      <div class="drawer-head"><div><p class="eyebrow">YOUR ORDER</p><h2 id="cartTitle">Your cart</h2></div><button id="cartClose" class="icon-button" aria-label="Close cart">✕</button></div>
+      <div class="drawer-head">
+        <div>
+          <p class="eyebrow">YOUR ORDER</p>
+          <h2 id="cartTitle">Your cart</h2>
+        </div>
+        <button id="cartClose" class="close-btn" aria-label="Close cart">✕</button>
+      </div>
       <div id="cartItems" class="cart-items"></div>
       <div id="checkoutArea"></div>
     </div>
   </div>
+
   <script src="app.js"></script>
 </body>
 </html>
