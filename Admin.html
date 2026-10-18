@@ -5,20 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Restaurant Owner Dashboard</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background: #f4f6f8; padding: 16px; }
-    header { background: #d32f2f; color: white; padding: 16px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-    h1 { font-size: 20px; }
-    .order-card { background: white; padding: 16px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 6px solid #d32f2f; }
-    .order-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; }
-    .customer-box { background: #fafafa; padding: 10px; border-radius: 6px; margin: 8px 0; font-size: 14px; }
-    .items-list { margin: 8px 0; padding-left: 20px; font-size: 14px; }
-    .total-price { font-size: 16px; font-weight: bold; color: #2e7d32; margin-top: 8px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #f1f5f9; padding: 16px; color: #1e293b; }
+    header { background: #ea580c; color: white; padding: 16px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    h1 { font-size: 18px; font-weight: 700; }
+    .nav-btn { background: white; color: #ea580c; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: bold; }
+    .order-card { background: white; padding: 16px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-left: 5px solid #ea580c; }
+    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; font-weight: bold; }
+    .customer-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin: 10px 0; font-size: 14px; line-height: 1.5; }
+    .items-list { margin: 10px 0; padding-left: 20px; font-size: 14px; }
+    .total-price { font-size: 16px; font-weight: 700; color: #16a34a; margin: 12px 0; }
     .actions { display: flex; gap: 8px; margin-top: 12px; }
-    .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-    .btn-accept { background: #1976d2; color: white; }
-    .btn-done { background: #2e7d32; color: white; }
-    .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; background: #eee; }
+    .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; text-align: center; }
+    .btn-preparing { background: #3b82f6; color: white; }
+    .btn-delivered { background: #16a34a; color: white; }
+    .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; background: #ffedd5; color: #c2410c; font-weight: 600; }
   </style>
 
   <!-- Firebase Scripts -->
@@ -29,27 +30,32 @@
 <body>
 
   <header>
-    <h1>🍴 Live Kitchen Orders</h1>
-    <span id="orderCount" style="background:white; color:#d32f2f; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">0 Orders</span>
+    <div>
+      <h1>🍴 Live Kitchen Orders</h1>
+      <span id="orderCount" style="font-size: 12px; opacity: 0.9;">Connecting to database...</span>
+    </div>
+    <a href="index.html" class="nav-btn">← Back to App</a>
   </header>
 
   <div id="ordersContainer">
-    <p style="text-align:center; color:#666;">Loading live orders...</p>
+    <p style="text-align: center; color: #64748b; padding: 20px;">Fetching orders...</p>
   </div>
 
   <script>
     const container = document.getElementById("ordersContainer");
     const countBadge = document.getElementById("orderCount");
 
-    // Real-time Firestore Listener
-    db.collection("orders").orderBy("createdAt", "desc").onSnapshot(snapshot => {
-      countBadge.textContent = `${snapshot.size} Orders`;
+    // Real-Time Listener (Bina kisi index constraint ke direct fetch)
+    db.collection("orders").onSnapshot(snapshot => {
+      countBadge.textContent = `${snapshot.size} Total Orders`;
       if (snapshot.empty) {
-        container.innerHTML = `<p style="text-align:center; color:#666;">No orders received yet.</p>`;
+        container.innerHTML = `<p style="text-align:center; color:#64748b; padding:20px;">No orders placed yet.</p>`;
         return;
       }
 
-      container.innerHTML = snapshot.docs.map(doc => {
+      const docs = snapshot.docs;
+
+      container.innerHTML = docs.map(doc => {
         const o = doc.data();
         const id = doc.id;
         const items = o.items || [];
@@ -69,7 +75,7 @@
               ${customer.notes ? `<strong>Notes:</strong> ${customer.notes}` : ''}
             </div>
 
-            <strong>Items Ordered:</strong>
+            <strong>Items:</strong>
             <ul class="items-list">
               ${items.map(it => `<li>${it.qty}x ${it.name} - ₹${it.price * it.qty}</li>`).join('')}
             </ul>
@@ -77,12 +83,15 @@
             <div class="total-price">Total Amount: ₹${o.total || 0}</div>
 
             <div class="actions">
-              <button class="btn btn-accept" onclick="updateStatus('${id}', 'Preparing')">Cooking</button>
-              <button class="btn btn-done" onclick="updateStatus('${id}', 'Delivered')">Delivered</button>
+              <button class="btn btn-preparing" onclick="updateStatus('${id}', 'Preparing')">Cooking</button>
+              <button class="btn btn-delivered" onclick="updateStatus('${id}', 'Delivered')">Delivered</button>
             </div>
           </div>
         `;
       }).join('');
+    }, error => {
+      countBadge.textContent = "Connection Error";
+      container.innerHTML = `<div style="background:#fee2e2; color:#991b1b; padding:12px; border-radius:8px; font-size:13px; text-align:center;">Failed to load orders: ${error.message}</div>`;
     });
 
     async function updateStatus(docId, newStatus) {
