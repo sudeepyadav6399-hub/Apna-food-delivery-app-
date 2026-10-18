@@ -1,5 +1,6 @@
+// Firebase Configuration for Apna Food
 const firebaseConfig = {
-  apiKey: "AIzaSyDxs1ajvxsqVjujfCwDdmZ...", // Poori key Firebase box se copy karein
+  apiKey: "AIzaSyDxs1ajvxsqVjujfCwDdmZ", // Note: Apni poori API Key Firebase console se copy karke yahan quotes ke andar paste karein
   authDomain: "apna-food-9c653.firebaseapp.com",
   projectId: "apna-food-9c653",
   storageBucket: "apna-food-9c653.firebasestorage.app",
@@ -9,4 +10,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
